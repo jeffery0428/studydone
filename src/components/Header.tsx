@@ -67,6 +67,12 @@ export function Header() {
           >
             {t("nav.pricing")}
           </Link>
+          <Link
+            href="/human-review"
+            className={`text-sm font-medium ${pathname === "/human-review" ? "text-primary-600" : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"}`}
+          >
+            {t("nav.humanReview")}
+          </Link>
 
           <label className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
             <span>Language</span>

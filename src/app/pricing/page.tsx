@@ -8,7 +8,7 @@ import { apiFetch } from "@/lib/api";
 const PLANS = [
   {
     id: "5",
-    quota: 5,
+    quota: 20,
     price: 5,
     popular: true,
     enabled: true,
@@ -17,7 +17,7 @@ const PLANS = [
   },
   {
     id: "50",
-    quota: 50,
+    quota: 200,
     price: 48,
     popular: false,
     enabled: false,
@@ -26,8 +26,8 @@ const PLANS = [
   },
   {
     id: "200",
-    quota: 200,
-    price: 190,
+    quota: 800,
+    price: 195,
     popular: false,
     enabled: false,
     nameKey: "pricing.planTeacherName",

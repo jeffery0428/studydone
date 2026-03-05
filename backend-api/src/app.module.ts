@@ -9,6 +9,7 @@ import { ReportsModule } from "./modules/reports/reports.module";
 import { StorageModule } from "./modules/storage/storage.module";
 import { StripeModule } from "./modules/stripe/stripe.module";
 import { CreditsModule } from "./modules/credits/credits.module";
+import { HumanReviewModule } from "./modules/human-review/human-review.module";
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CreditsModule } from "./modules/credits/credits.module";
     ReportsModule,
     StripeModule,
     CreditsModule,
+    HumanReviewModule,
   ],
 })
 export class AppModule {}

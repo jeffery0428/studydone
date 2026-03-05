@@ -31,9 +31,9 @@ export class StripeService {
     }
 
     const plans: Record<string, { priceId?: string; quota: number }> = {
-      "5": { priceId: this.configService.get<string>("STRIPE_PRICE_5"), quota: 5 },
-      "50": { priceId: this.configService.get<string>("STRIPE_PRICE_50"), quota: 50 },
-      "200": { priceId: this.configService.get<string>("STRIPE_PRICE_200"), quota: 200 },
+      "5": { priceId: this.configService.get<string>("STRIPE_PRICE_5"), quota: 20 },
+      "50": { priceId: this.configService.get<string>("STRIPE_PRICE_50"), quota: 200 },
+      "200": { priceId: this.configService.get<string>("STRIPE_PRICE_200"), quota: 800 },
     };
 
     const selected = plans[plan];

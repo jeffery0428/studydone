@@ -19,6 +19,7 @@ model User {
   reports      Report[]
   subscriptions Subscription[]
   reservations CreditReservation[]
+  humanReviews HumanReviewRequest[]
 }
 
 model Report {
@@ -56,6 +57,27 @@ model CreditReservation {
   createdAt DateTime          @default(now())
 
   @@index([userId, status, expiresAt])
+}
+
+model HumanReviewRequest {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileName       String
+  fileType       String
+  ossObjectKey   String
+  charCount      Int
+  creditsUsed    Int
+  status         HumanReviewStatus @default(pending)
+  createdAt      DateTime          @default(now())
+  completedAt    DateTime?
+}
+
+enum HumanReviewStatus {
+  pending
+  in_progress
+  completed
+  cancelled
 }
 
 enum UserRole {

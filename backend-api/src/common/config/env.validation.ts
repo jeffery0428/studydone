@@ -16,7 +16,18 @@ export const envSchema = z.object({
   R2_ENDPOINT: z.string().url(),
   R2_PUBLIC_BASE_URL: z.string().optional(),
 
-  // Originality.ai 配置（按需启用）
+  // 阿里云 OSS，用于人工复查文件存储
+  ALIYUN_OSS_ACCESS_KEY_ID: z.string().min(1),
+  ALIYUN_OSS_ACCESS_KEY_SECRET: z.string().min(1),
+  ALIYUN_OSS_BUCKET: z.string().min(1),
+  ALIYUN_OSS_REGION: z.string().min(1),
+
+  // GPTZero 配置（当前生效）
+  GPTZERO_API_KEY: z.string().min(1),
+  GPTZERO_BASE_URL: z.string().url().default("https://api.gptzero.me"),
+  GPTZERO_ENDPOINT: z.string().default("/v2/predict/text"),
+
+  // Originality.ai 配置（可选备用）
   ORIGINALITY_API_KEY: z.string().optional(),
   ORIGINALITY_BASE_URL: z.string().url().default("https://api.originality.ai"),
   ORIGINALITY_ENDPOINT: z.string().default("/api/v1/scan"),

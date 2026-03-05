@@ -5,10 +5,9 @@ import {
   Injectable,
 } from "@nestjs/common";
 import { PrismaService } from "../../common/prisma/prisma.service";
-import { R2Service } from "../storage/r2.service";
-import { GptZeroService } from "./gptzero.service";
-import { createHash } from "crypto";
+import { OssService } from "../storage/oss.service";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { createHash } from "crypto";
 import mammoth from "mammoth";
 import pdf from "pdf-parse";
 
@@ -19,14 +18,13 @@ const ALLOWED_TYPES = [
 ];
 
 @Injectable()
-export class CheckService {
+export class HumanReviewService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly r2Service: R2Service,
-    private readonly gptZeroService: GptZeroService,
+    private readonly ossService: OssService,
   ) {}
 
-  async runCheck(userId: string, file: Express.Multer.File) {
+  async requestReview(userId: string, file: Express.Multer.File) {
     if (!file) throw new BadRequestException("Please upload a file");
     if (!ALLOWED_TYPES.includes(file.mimetype)) {
       throw new BadRequestException("Only docx/pdf/txt are supported");
@@ -35,20 +33,18 @@ export class CheckService {
     try {
       const extractedText = await this.extractText(file.buffer, file.mimetype);
       const length = extractedText.length;
-      if (length < 50) {
-        throw new BadRequestException("Document content too short for analysis");
+      if (length === 0) {
+        throw new BadRequestException("Document content is empty");
       }
 
-      // 积分规则：每 1000 字符扣 1 分，向上取整，至少 1 分
-      const amount = Math.max(1, Math.ceil(length / 1000));
+      // 人工复查积分规则：每 1000 字扣 2 分，向上取整，至少 2 分
+      const units = Math.max(1, Math.ceil(length / 1000));
+      const amount = Math.max(2, units * 2);
 
       const taskId = this.computeTaskId(userId, file);
       const reservation = await this.reserveCredits(userId, amount, taskId);
 
-      const segments = this.segmentText(extractedText);
-      const detection = await this.gptZeroService.detect(segments);
-
-      const uploaded = await this.r2Service.uploadFile({
+      const uploaded = await this.ossService.uploadFile({
         userId,
         fileName: file.originalname,
         buffer: file.buffer,
@@ -73,15 +69,15 @@ export class CheckService {
           data: { checkQuota: { decrement: reservation.amount } },
         });
 
-        return tx.report.create({
+        return (tx as any).humanReviewRequest.create({
           data: {
             userId,
             fileName: file.originalname,
             fileType: file.mimetype,
-            fileStorageKey: uploaded.key,
-            overallScore: detection.overallScore,
-            rawText: extractedText.slice(0, 100000),
-            segmentResults: detection.segments,
+            ossObjectKey: uploaded.key,
+            charCount: length,
+            creditsUsed: reservation.amount,
+            status: "pending",
           },
         });
       });
@@ -90,28 +86,22 @@ export class CheckService {
         where: { id: userId },
         select: { checkQuota: true },
       });
-      const remainingQuota = userAfter?.checkQuota ?? 0;
 
       return {
-        report: {
-          id: created.id,
-          fileName: created.fileName,
-          overallScore: created.overallScore,
-          segments: detection.segments,
-        },
-        remainingQuota,
+        requestId: created.id,
+        charCount: created.charCount,
+        creditsUsed: created.creditsUsed,
+        remainingQuota: userAfter?.checkQuota ?? 0,
       };
     } catch (error) {
       // 如果在预扣之后出错，回滚预扣
-      if ((error as any)?.message !== "Document content too short for analysis") {
-        await this.prisma.creditReservation.updateMany({
-          where: {
-            userId,
-            status: "reserved",
-          },
-          data: { status: "cancelled" },
-        });
-      }
+      await this.prisma.creditReservation.updateMany({
+        where: {
+          userId,
+          status: "reserved",
+        },
+        data: { status: "cancelled" },
+      });
       throw error;
     }
   }
@@ -167,7 +157,7 @@ export class CheckService {
       } catch (err) {
         if (err instanceof PrismaClientKnownRequestError && err.code === "P2002") {
           throw new BadRequestException(
-            "A similar document check is already queued or has recently finished.",
+            "A similar human review request is already queued or has recently finished.",
           );
         }
         throw err;
@@ -177,6 +167,7 @@ export class CheckService {
 
   private computeTaskId(userId: string, file: Express.Multer.File): string {
     const h = createHash("sha256");
+    h.update("human-review:");
     h.update(userId);
     h.update(":");
     h.update(file.originalname || "");
@@ -190,22 +181,57 @@ export class CheckService {
       const data = await pdf(buffer);
       return data.text.trim();
     }
-    if (mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+    if (
+      mimeType ===
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ) {
       const data = await mammoth.extractRawText({ buffer });
       return data.value.trim();
     }
     return buffer.toString("utf-8").trim();
   }
 
-  private segmentText(text: string) {
-    const paragraphs = text
-      .split(/\n\n+/)
-      .map((p) => p.trim())
-      .filter((p) => p.length >= 20);
-    if (paragraphs.length > 0) return paragraphs;
+  async listRequests(params: {
+    status?: "pending" | "in_progress" | "completed" | "cancelled";
+    skip?: number;
+    take?: number;
+  }) {
+    const { status, skip = 0, take = 50 } = params;
+    return (this.prisma as any).humanReviewRequest.findMany({
+      where: status ? { status } : undefined,
+      orderBy: { createdAt: "desc" },
+      skip,
+      take,
+      select: {
+        id: true,
+        userId: true,
+        fileName: true,
+        fileType: true,
+        ossObjectKey: true,
+        charCount: true,
+        creditsUsed: true,
+        status: true,
+        createdAt: true,
+        completedAt: true,
+      },
+    });
+  }
 
-    const chunks = text.match(/.{1,400}/g) || [text];
-    return chunks.map((c) => c.trim()).filter((c) => c.length >= 20);
+  async updateStatus(id: string, status: "pending" | "in_progress" | "completed" | "cancelled") {
+    const now = new Date();
+    const data: any = { status };
+    if (status === "completed") {
+      data.completedAt = now;
+    }
+    return (this.prisma as any).humanReviewRequest.update({
+      where: { id },
+      data,
+      select: {
+        id: true,
+        status: true,
+        completedAt: true,
+      },
+    });
   }
 }
 
