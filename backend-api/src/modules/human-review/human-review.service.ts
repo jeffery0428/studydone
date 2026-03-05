@@ -8,8 +8,8 @@ import { PrismaService } from "../../common/prisma/prisma.service";
 import { OssService } from "../storage/oss.service";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { createHash } from "crypto";
-import mammoth from "mammoth";
-import pdf from "pdf-parse";
+import * as mammoth from "mammoth";
+import * as pdf from "pdf-parse";
 
 const ALLOWED_TYPES = [
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -178,7 +178,7 @@ export class HumanReviewService {
 
   private async extractText(buffer: Buffer, mimeType: string) {
     if (mimeType === "application/pdf") {
-      const data = await pdf(buffer);
+      const data = await pdf(buffer as any);
       return data.text.trim();
     }
     if (

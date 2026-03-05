@@ -10,7 +10,7 @@ import { GptZeroService } from "./gptzero.service";
 import { createHash } from "crypto";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import * as mammoth from "mammoth";
-import pdf from "pdf-parse";
+import * as pdf from "pdf-parse";
 
 const ALLOWED_TYPES = [
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -187,7 +187,7 @@ export class CheckService {
 
   private async extractText(buffer: Buffer, mimeType: string) {
     if (mimeType === "application/pdf") {
-      const data = await pdf(buffer);
+      const data = await pdf(buffer as any);
       return data.text.trim();
     }
     if (mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
