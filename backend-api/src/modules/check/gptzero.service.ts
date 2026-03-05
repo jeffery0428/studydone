@@ -29,7 +29,7 @@ export class GptZeroService {
           { paragraphs: segments },
           {
             headers: {
-              Authorization: `Bearer ${apiKey}`,
+              "x-api-key": apiKey,
               "Content-Type": "application/json",
             },
             timeout: 20000,
