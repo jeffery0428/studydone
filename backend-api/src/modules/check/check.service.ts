@@ -102,6 +102,15 @@ export class CheckService {
         remainingQuota,
       };
     } catch (error) {
+      // 记录详细错误日志，便于线上排查
+      // eslint-disable-next-line no-console
+      console.error("CheckService.runCheck error", {
+        userId,
+        fileName: file?.originalname,
+        message: (error as any)?.message,
+        stack: (error as any)?.stack,
+      });
+
       // 如果在预扣之后出错，回滚预扣
       if ((error as any)?.message !== "Document content too short for analysis") {
         await this.prisma.creditReservation.updateMany({
