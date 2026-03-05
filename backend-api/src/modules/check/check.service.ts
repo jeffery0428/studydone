@@ -9,7 +9,7 @@ import { R2Service } from "../storage/r2.service";
 import { GptZeroService } from "./gptzero.service";
 import { createHash } from "crypto";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import mammoth from "mammoth";
+import * as mammoth from "mammoth";
 import pdf from "pdf-parse";
 
 const ALLOWED_TYPES = [
