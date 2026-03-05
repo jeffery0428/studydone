@@ -1,0 +1,7 @@
+.next
+.env
+.DS_Store
+dist
+build
+node_modules/
+backend-api/node_modules/

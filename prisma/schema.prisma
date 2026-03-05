@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  name          String?
+  role          String    @default("student") // student | teacher
+  checkQuota    Int       @default(3)         // 免费查重次数
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  reports       Report[]
+  subscriptions Subscription[]
+}
+
+model Report {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileName        String
+  fileType        String   // docx | pdf | txt
+  overallScore    Float    // 0-100 AI概率
+  rawText         String?  // 原始文本
+  segmentResults  String   // JSON: 段落分析结果
+  createdAt       DateTime @default(now())
+}
+
+model Subscription {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeId      String?  @unique
+  plan          String   // basic | pro | unlimited
+  checkQuota    Int      // 购买的查重次数
+  expiresAt     DateTime?
+  createdAt     DateTime @default(now())
+}
