@@ -3,7 +3,7 @@ declare module "ali-oss" {
     headers?: Record<string, string>;
   }
 
-  export default class OSS {
+  class OSS {
     constructor(options: {
       region: string;
       accessKeyId: string;
@@ -13,5 +13,7 @@ declare module "ali-oss" {
 
     put(name: string, file: Buffer, options?: PutOptions): Promise<{ name: string }>;
   }
+
+  export = OSS;
 }
 

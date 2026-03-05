@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import OSS from "ali-oss";
+import OSS = require("ali-oss");
 import { randomUUID } from "crypto";
 
 @Injectable()
