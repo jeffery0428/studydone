@@ -37,9 +37,8 @@ export class HumanReviewService {
         throw new BadRequestException("Document content is empty");
       }
 
-      // 人工复查积分规则：每 1000 字扣 2 分，向上取整，至少 2 分
-      const units = Math.max(1, Math.ceil(length / 1000));
-      const amount = Math.max(2, units * 2);
+      // 人工复查：50 积分起；少于 3000 字按 50 扣；≥3000 字 = 50 + 超出部分每 100 字 1 积分
+      const amount = length < 3000 ? 50 : 50 + Math.ceil((length - 3000) / 100);
 
       const taskId = this.computeTaskId(userId, file);
       const reservation = await this.reserveCredits(userId, amount, taskId);

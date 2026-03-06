@@ -8,6 +8,7 @@ import { PrismaService } from "../../common/prisma/prisma.service";
 import { R2Service } from "../storage/r2.service";
 import { GptZeroService } from "./gptzero.service";
 import { createHash } from "crypto";
+import { Prisma } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import * as mammoth from "mammoth";
 import * as pdf from "pdf-parse";
@@ -26,10 +27,20 @@ export class CheckService {
     private readonly gptZeroService: GptZeroService,
   ) {}
 
-  async runCheck(userId: string, file: Express.Multer.File) {
+  async runCheck(
+    userId: string,
+    file: Express.Multer.File,
+    options: { aiDetection: boolean; plagiarismDetection: boolean } = {
+      aiDetection: true,
+      plagiarismDetection: true,
+    },
+  ) {
     if (!file) throw new BadRequestException("Please upload a file");
     if (!ALLOWED_TYPES.includes(file.mimetype)) {
       throw new BadRequestException("Only docx/pdf/txt are supported");
+    }
+    if (!options.aiDetection && !options.plagiarismDetection) {
+      throw new BadRequestException("Please select at least one of AI detection or plagiarism detection");
     }
 
     try {
@@ -39,14 +50,28 @@ export class CheckService {
         throw new BadRequestException("Document content too short for analysis");
       }
 
-      // 积分规则：每 1000 字符扣 1 分，向上取整，至少 1 分
-      const amount = Math.max(1, Math.ceil(length / 1000));
+      // 常规检查：100 字 = 1 积分；同时选 AI+抄袭 = 2 倍（100 字 2 积分）；至少 1 积分
+      const baseAmount = Math.max(1, Math.ceil(length / 100));
+      const multiplier = options.aiDetection && options.plagiarismDetection ? 2 : 1;
+      const amount = baseAmount * multiplier;
 
-      const taskId = this.computeTaskId(userId, file);
+      const taskId = this.computeTaskId(userId, file, options);
       const reservation = await this.reserveCredits(userId, amount, taskId);
 
       const segments = this.segmentText(extractedText);
-      const detection = await this.gptZeroService.detect(segments);
+      const [detection, bibliographyScan] = await Promise.all([
+        options.aiDetection ? this.gptZeroService.detect(segments) : Promise.resolve({
+          overallScore: 0,
+          segments: segments.map((text) => ({
+            text,
+            aiProbability: 0,
+            riskLevel: "low" as const,
+            explanation: "AI detection was not selected.",
+          })),
+          rawResponse: null,
+        }),
+        options.plagiarismDetection ? this.gptZeroService.scanBibliography(extractedText) : Promise.resolve(null),
+      ]);
 
       const uploaded = await this.r2Service.uploadFile({
         userId,
@@ -82,6 +107,7 @@ export class CheckService {
             overallScore: detection.overallScore,
             rawText: extractedText.slice(0, 100000),
             segmentResults: detection.segments,
+            bibliographyScan: bibliographyScan != null ? (bibliographyScan as Prisma.InputJsonValue) : undefined,
           },
         });
       });
@@ -98,6 +124,7 @@ export class CheckService {
           fileName: created.fileName,
           overallScore: created.overallScore,
           segments: detection.segments,
+          bibliographyScan: bibliographyScan ?? undefined,
         },
         remainingQuota,
       };
@@ -184,13 +211,20 @@ export class CheckService {
     });
   }
 
-  private computeTaskId(userId: string, file: Express.Multer.File): string {
+  private computeTaskId(
+    userId: string,
+    file: Express.Multer.File,
+    options: { aiDetection: boolean; plagiarismDetection: boolean },
+  ): string {
     const h = createHash("sha256");
     h.update(userId);
     h.update(":");
     h.update(file.originalname || "");
     h.update(":");
     h.update(String(file.size ?? 0));
+    h.update(":");
+    h.update(options.aiDetection ? "1" : "0");
+    h.update(options.plagiarismDetection ? "1" : "0");
     return h.digest("hex");
   }
 

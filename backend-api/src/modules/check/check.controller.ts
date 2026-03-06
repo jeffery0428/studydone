@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Post,
   UploadedFile,
@@ -23,8 +24,14 @@ export class CheckController {
   runCheck(
     @CurrentUser() user: CurrentUserPayload,
     @UploadedFile() file: Express.Multer.File,
+    @Body("aiDetection") aiDetection?: string,
+    @Body("plagiarismDetection") plagiarismDetection?: string,
   ) {
-    return this.checkService.runCheck(user.userId, file);
+    const options = {
+      aiDetection: aiDetection !== "false" && aiDetection !== "0",
+      plagiarismDetection: plagiarismDetection !== "false" && plagiarismDetection !== "0",
+    };
+    return this.checkService.runCheck(user.userId, file, options);
   }
 }
 

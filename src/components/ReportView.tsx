@@ -15,6 +15,7 @@ type Props = {
     fileName: string;
     overallScore: number;
     segments: Segment[];
+    bibliographyScan?: Record<string, unknown> | null;
   };
   onBack: () => void;
 };
@@ -48,19 +49,50 @@ export function ReportView({ report, onBack }: Props) {
     );
   };
 
+  const handleDownloadJson = () => {
+    const payload = {
+      id: report.id,
+      fileName: report.fileName,
+      overallScore: report.overallScore,
+      segments: report.segments,
+      bibliographyScan: report.bibliographyScan ?? undefined,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: "application/json;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const safeName = report.fileName?.replace(/[^\w.\-]+/g, "_") || "report";
+    a.download = `${safeName}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            {t("report.back")}
+          </button>
+          <span className="text-sm text-slate-500">{report.fileName}</span>
+        </div>
         <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+          type="button"
+          onClick={handleDownloadJson}
+          className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
         >
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          {t("report.back")}
+          {t("report.downloadJson")}
         </button>
-        <span className="text-sm text-slate-500">{report.fileName}</span>
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-8 dark:border-slate-700 dark:bg-slate-800/50">
@@ -80,6 +112,17 @@ export function ReportView({ report, onBack }: Props) {
           </p>
         </div>
       </div>
+
+      {report.bibliographyScan != null && Object.keys(report.bibliographyScan).length > 0 && (
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800/50">
+          <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
+            {t("report.bibliographyTitle")}
+          </h2>
+          <pre className="overflow-auto rounded-lg bg-slate-50 p-4 text-sm text-slate-800 dark:bg-slate-900 dark:text-slate-200">
+            {JSON.stringify(report.bibliographyScan, null, 2)}
+          </pre>
+        </div>
+      )}
 
       <div>
         <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">

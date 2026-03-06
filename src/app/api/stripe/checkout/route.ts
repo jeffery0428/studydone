@@ -11,9 +11,9 @@ function getStripeClient() {
 
 // 在 Stripe Dashboard 创建产品后，将 Price ID 填入环境变量
 const PLANS: Record<string, { priceId: string; quota: number }> = {
-  "5": { priceId: process.env.STRIPE_PRICE_5 || "", quota: 5 },
-  "50": { priceId: process.env.STRIPE_PRICE_50 || "", quota: 50 },
-  "200": { priceId: process.env.STRIPE_PRICE_200 || "", quota: 200 },
+  "5": { priceId: process.env.STRIPE_PRICE_5 || "", quota: 250 },
+  "50": { priceId: process.env.STRIPE_PRICE_50 || "", quota: 2500 },
+  "200": { priceId: process.env.STRIPE_PRICE_200 || "", quota: 10000 },
 };
 
 export async function POST(req: Request) {

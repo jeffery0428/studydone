@@ -23,17 +23,18 @@ model User {
 }
 
 model Report {
-  id             String   @id @default(cuid())
-  userId         String
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  fileName       String
-  fileType       String
-  fileStorageKey String
-  overallScore   Float
-  rawText        String?  @db.LongText
-  segmentResults Json
-  detectorVendor String   @default("gptzero")
-  createdAt      DateTime @default(now())
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileName         String
+  fileType         String
+  fileStorageKey   String
+  overallScore     Float
+  rawText          String?  @db.LongText
+  segmentResults   Json
+  bibliographyScan Json?    // GPTZero /v2/bibliography-scan/text 返回结果
+  detectorVendor   String   @default("gptzero")
+  createdAt        DateTime @default(now())
 }
 
 model Subscription {

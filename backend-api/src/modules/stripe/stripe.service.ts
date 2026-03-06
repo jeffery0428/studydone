@@ -22,18 +22,14 @@ export class StripeService {
   }
 
   async createCheckout(userId: string, plan: string) {
-    if (plan !== "5") {
-      throw new BadRequestException("This plan is not open for testing yet");
-    }
-
     if (!this.stripe) {
       throw new InternalServerErrorException("Stripe is not configured");
     }
 
     const plans: Record<string, { priceId?: string; quota: number }> = {
-      "5": { priceId: this.configService.get<string>("STRIPE_PRICE_5"), quota: 20 },
-      "50": { priceId: this.configService.get<string>("STRIPE_PRICE_50"), quota: 200 },
-      "200": { priceId: this.configService.get<string>("STRIPE_PRICE_200"), quota: 800 },
+      "5": { priceId: this.configService.get<string>("STRIPE_PRICE_5"), quota: 250 },
+      "50": { priceId: this.configService.get<string>("STRIPE_PRICE_50"), quota: 2500 },
+      "200": { priceId: this.configService.get<string>("STRIPE_PRICE_200"), quota: 10000 },
     };
 
     const selected = plans[plan];

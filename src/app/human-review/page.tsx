@@ -77,17 +77,24 @@ export default function HumanReviewPage() {
 
   const feeRuleText =
     locale === "zh"
-      ? "扣费规则：每 1000 字扣除 2 个积分，向上取整，单次至少扣除 2 个积分。"
+      ? "扣费规则：50 积分起；少于 3000 字按 50 积分扣除；大于 3000 字，超过部分按 100 字 1 积分扣除。"
       : locale === "ja"
-        ? "料金ルール：1,000文字ごとに2ポイントを消費（切り上げ）、1回の最低消費は2ポイントです。"
-        : "Fee rule: 2 credits are charged per 1,000 characters (rounded up), with a minimum of 2 credits per request.";
+        ? "料金：50ポイントから。3000文字未満は50ポイント、3000文字超は超過分100文字あたり1ポイント。"
+        : "Fee rule: minimum 50 credits; under 3000 characters = 50 credits; over 3000 = 50 + 1 credit per 100 characters over 3000.";
+
+  const turnitinDesc =
+    locale === "zh"
+      ? "使用 Turnitin 学术数据库核查。"
+      : locale === "ja"
+        ? "Turnitin 学術データベースで照合します。"
+        : "Uses Turnitin academic database for verification.";
 
   const processTimeText =
     locale === "zh"
-      ? "处理时间：使用人工核对学术数据库，一般处理时间为 5–30 分钟。"
+      ? "处理时间：人工核对，一般 5–30 分钟。"
       : locale === "ja"
-        ? "処理時間：学術データベースを人の目で照合し、およそ5〜30分で結果をお送りします。"
-        : "Processing time: manual cross-check against academic databases, usually processed within 5–30 minutes.";
+        ? "処理時間：人の目で照合し、およそ5〜30分で結果をお送りします。"
+        : "Processing time: manual review, usually 5–30 minutes.";
 
   const emailNoticeText =
     locale === "zh"
@@ -119,7 +126,8 @@ export default function HumanReviewPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{title}</h1>
-      <p className="mt-3 text-sm text-amber-700 dark:text-amber-300">{feeRuleText}</p>
+      <p className="mt-3 text-sm text-slate-700 dark:text-slate-300">{turnitinDesc}</p>
+      <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">{feeRuleText}</p>
       <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">
         {processTimeText}
       </p>

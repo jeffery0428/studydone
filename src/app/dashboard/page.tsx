@@ -19,6 +19,7 @@ export default function DashboardPage() {
     fileName: string;
     overallScore: number;
     segments: Array<{ text: string; aiProbability: number; riskLevel: string; explanation: string }>;
+    bibliographyScan?: Record<string, unknown> | null;
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [paymentSuccessNotice, setPaymentSuccessNotice] = useState(false);
@@ -68,12 +69,18 @@ export default function DashboardPage() {
   }, [paymentSuccessNotice]);
 
   const handleCheckSuccess = (data: { report: unknown; remainingQuota: number }) => {
-    const r = data.report as { overallScore: number; segments: unknown[]; fileName: string };
+    const r = data.report as {
+      overallScore: number;
+      segments: unknown[];
+      fileName: string;
+      bibliographyScan?: Record<string, unknown> | null;
+    };
     setCurrentReport({
       id: "new",
       fileName: r.fileName,
       overallScore: r.overallScore,
       segments: r.segments as Array<{ text: string; aiProbability: number; riskLevel: string; explanation: string }>,
+      bibliographyScan: r.bibliographyScan ?? null,
     });
     if (user) setUser({ ...user, checkQuota: data.remainingQuota });
     setReports((prev) => [
@@ -85,7 +92,19 @@ export default function DashboardPage() {
   const handleViewReport = async (id: string) => {
     const res = await apiFetch(`/api/reports/${id}`);
     const data = await res.json();
-    if (data.report) setCurrentReport(data.report);
+    if (data.report) {
+      const r = data.report as {
+        id: string;
+        fileName: string;
+        overallScore: number;
+        segments: Array<{ text: string; aiProbability: number; riskLevel: string; explanation: string }>;
+        bibliographyScan?: Record<string, unknown> | null;
+      };
+      setCurrentReport({
+        ...r,
+        bibliographyScan: r.bibliographyScan ?? null,
+      });
+    }
   };
 
   if (loading) {

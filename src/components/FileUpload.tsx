@@ -12,8 +12,10 @@ type Props = {
 export function FileUpload({ onSuccess, onError }: Props) {
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [aiDetection, setAiDetection] = useState(true);
+  const [plagiarismDetection, setPlagiarismDetection] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   const handleFile = async (file: File) => {
     const allowed = [
@@ -30,10 +32,16 @@ export function FileUpload({ onSuccess, onError }: Props) {
       return;
     }
 
+    if (!aiDetection && !plagiarismDetection) {
+      onError(t("upload.checkOptions") + " — " + (locale === "zh" ? "请至少选择一项" : locale === "ja" ? "いずれか1つ以上選択してください" : "Please select at least one option."));
+      return;
+    }
     setUploading(true);
     try {
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("aiDetection", aiDetection ? "true" : "false");
+      formData.append("plagiarismDetection", plagiarismDetection ? "true" : "false");
       const res = await apiFetch("/api/check", {
         method: "POST",
         body: formData,
@@ -109,6 +117,34 @@ export function FileUpload({ onSuccess, onError }: Props) {
           <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
             {t("upload.subline")}
           </p>
+          <div className="mt-4 rounded-lg border border-slate-200 bg-white/80 p-4 dark:border-slate-600 dark:bg-slate-800/50">
+            <p className="mb-2 text-xs font-medium text-slate-600 dark:text-slate-400">
+              {t("upload.checkOptions")}
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={aiDetection}
+                  onChange={(e) => setAiDetection(e.target.checked)}
+                  className="rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                />
+                {t("upload.aiDetection")}
+              </label>
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={plagiarismDetection}
+                  onChange={(e) => setPlagiarismDetection(e.target.checked)}
+                  className="rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                />
+                {t("upload.plagiarismDetection")}
+              </label>
+            </div>
+            <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+              {aiDetection && plagiarismDetection ? t("upload.feeRuleBoth") : t("upload.feeRuleSingle")}
+            </p>
+          </div>
         </>
       )}
     </div>

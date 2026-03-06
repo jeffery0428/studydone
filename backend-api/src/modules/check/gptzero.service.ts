@@ -10,6 +10,21 @@ export type SegmentDetection = {
   explanation: string;
 };
 
+/** GPTZero /v2/predict/text 文档结构（按官方 DocumentPredictions） */
+type GptZeroDoc = {
+  paragraphs?: Array<{ completely_generated_prob?: number; start_sentence_index?: number; num_sentences?: number }>;
+  sentences?: unknown[];
+  average_generated_prob?: number;
+  completely_generated_prob?: number;
+  overall_burstiness?: number;
+  document_classification?: string;
+  result_message?: string;
+  result_sub_message?: string;
+};
+
+/** Bibliography scan 返回（结构以 GPTZero 实际为准，先泛型存储） */
+export type BibliographyScanResult = Record<string, unknown> | null;
+
 @Injectable()
 export class GptZeroService {
   constructor(
@@ -28,11 +43,7 @@ export class GptZeroService {
       const response = await firstValueFrom(
         this.httpService.post(
           `${baseUrl}${endpoint}`,
-          {
-            document,
-            // 可选：版本标记，兼容官方最新文档
-            // version: "v2",
-          },
+          { document },
           {
             headers: {
               "x-api-key": apiKey,
@@ -43,29 +54,37 @@ export class GptZeroService {
         ),
       );
 
-      const data = response.data as any;
+      const data = response.data as {
+        documents?: GptZeroDoc[];
+        document?: GptZeroDoc;
+        version?: string;
+      };
 
-      // 根据最新文档，优先读取文档级概率；字段名做多种兼容
+      const doc: GptZeroDoc | undefined = data?.documents?.[0] ?? data?.document;
       const overallScore: number =
-        data?.document?.overall_generated_prob ??
-        data?.overall_generated_prob ??
-        data?.document_score ??
-        data?.average_generated_prob ??
+        doc?.average_generated_prob ??
+        doc?.completely_generated_prob ??
+        (data as any)?.overall_generated_prob ??
+        (data as any)?.document_score ??
         0.5;
 
-      // 目前按文档级结果均匀分配到各段，后续如需可根据 GPTZero 返回的更细粒度结果再精细拆分
-      const results: SegmentDetection[] = segments.map((text) => {
-        const score = overallScore;
+      const paragraphProbs: number[] =
+        doc?.paragraphs?.map((p) => p.completely_generated_prob ?? overallScore) ?? [];
+
+      const results: SegmentDetection[] = segments.map((text, index) => {
+        const score = index < paragraphProbs.length ? paragraphProbs[index]! : overallScore;
+        const riskLevel: "low" | "medium" | "high" = score >= 0.7 ? "high" : score >= 0.4 ? "medium" : "low";
+        const explanation =
+          score >= 0.7
+            ? "Strong AI writing indicators detected."
+            : score >= 0.4
+              ? "Some AI writing patterns are present."
+              : "Human-like writing signals are stronger.";
         return {
           text,
           aiProbability: score,
-          riskLevel: score >= 0.7 ? "high" : score >= 0.4 ? "medium" : "low",
-          explanation:
-            score >= 0.7
-              ? "Strong AI writing indicators detected."
-              : score >= 0.4
-                ? "Some AI writing patterns are present."
-                : "Human-like writing signals are stronger.",
+          riskLevel,
+          explanation,
         };
       });
 
@@ -85,5 +104,41 @@ export class GptZeroService {
       throw new BadGatewayException("GPTZero API request failed");
     }
   }
-}
 
+  /**
+   * 抄袭/文献扫描：POST https://api.gptzero.me/v2/bibliography-scan/text
+   * body: { document: "全文" }
+   */
+  async scanBibliography(document: string): Promise<BibliographyScanResult> {
+    const baseUrl = this.configService.getOrThrow<string>("GPTZERO_BASE_URL");
+    const endpoint = "/v2/bibliography-scan/text";
+    const apiKey = this.configService.getOrThrow<string>("GPTZERO_API_KEY");
+
+    try {
+      const response = await firstValueFrom(
+        this.httpService.post(
+          `${baseUrl}${endpoint}`,
+          { document },
+          {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              "x-api-key": apiKey,
+            },
+            timeout: 30000,
+          },
+        ),
+      );
+      return (response.data as Record<string, unknown>) ?? null;
+    } catch (error) {
+      const anyErr = error as any;
+      // eslint-disable-next-line no-console
+      console.error("GptZeroService.scanBibliography error", {
+        message: anyErr?.message,
+        status: anyErr?.response?.status,
+        data: anyErr?.response?.data,
+      });
+      return null;
+    }
+  }
+}

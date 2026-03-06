@@ -30,6 +30,7 @@ export class ReportsService {
         fileType: true,
         overallScore: true,
         segmentResults: true,
+        bibliographyScan: true,
         createdAt: true,
       },
     });
@@ -38,6 +39,7 @@ export class ReportsService {
       report: {
         ...report,
         segments: report.segmentResults,
+        bibliographyScan: report.bibliographyScan ?? undefined,
       },
     };
   }
