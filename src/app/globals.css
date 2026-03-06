@@ -24,3 +24,13 @@ body {
     text-wrap: balance;
   }
 }
+
+@media print {
+  header,
+  .print\:hidden {
+    display: none !important;
+  }
+  .report-print-container {
+    max-width: none;
+  }
+}

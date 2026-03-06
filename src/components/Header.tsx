@@ -39,7 +39,7 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95 print:hidden">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 font-bold text-primary-600">
           <span className="text-xl">StudyDone</span>
@@ -73,6 +73,20 @@ export function Header() {
           >
             {t("nav.humanReview")}
           </Link>
+          <Link
+            href="/ai-clean"
+            className={`text-sm font-medium ${pathname === "/ai-clean" ? "text-primary-600" : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"}`}
+          >
+            {t("nav.aiClean")}
+          </Link>
+          {user && (
+            <Link
+              href="/account"
+              className={`text-sm font-medium ${pathname === "/account" ? "text-primary-600" : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"}`}
+            >
+              {t("nav.account")}
+            </Link>
+          )}
 
           <label className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
             <span>Language</span>

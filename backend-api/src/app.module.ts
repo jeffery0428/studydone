@@ -10,6 +10,7 @@ import { StorageModule } from "./modules/storage/storage.module";
 import { StripeModule } from "./modules/stripe/stripe.module";
 import { CreditsModule } from "./modules/credits/credits.module";
 import { HumanReviewModule } from "./modules/human-review/human-review.module";
+import { MeModule } from "./modules/me/me.module";
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { HumanReviewModule } from "./modules/human-review/human-review.module";
     StripeModule,
     CreditsModule,
     HumanReviewModule,
+    MeModule,
   ],
 })
 export class AppModule {}

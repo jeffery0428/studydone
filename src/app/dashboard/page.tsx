@@ -201,35 +201,6 @@ export default function DashboardPage() {
               </div>
             </div>
           )}
-
-          <section className="mt-12 grid gap-6 md:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800/60">
-              <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                  {t("future.manualReviewTitle")}
-                </h3>
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-200">
-                  {t("future.comingSoon")}
-                </span>
-              </div>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                {t("future.manualReviewDesc")}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800/60">
-              <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                  {t("future.aiCleanTitle")}
-                </h3>
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-200">
-                  {t("future.comingSoon")}
-                </span>
-              </div>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                {t("future.aiCleanDesc")}
-              </p>
-            </div>
-          </section>
         </>
       ) : (
         <ReportView

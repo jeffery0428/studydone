@@ -71,9 +71,13 @@ export function ReportView({ report, onBack }: Props) {
     URL.revokeObjectURL(url);
   };
 
+  const handleDownloadPdf = () => {
+    window.print();
+  };
+
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between gap-4">
+    <div className="space-y-8 report-print-container">
+      <div className="flex flex-wrap items-center justify-between gap-4 print:hidden">
         <div className="flex items-center gap-2">
           <button
             onClick={onBack}
@@ -86,13 +90,25 @@ export function ReportView({ report, onBack }: Props) {
           </button>
           <span className="text-sm text-slate-500">{report.fileName}</span>
         </div>
-        <button
-          type="button"
-          onClick={handleDownloadJson}
-          className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
-        >
-          {t("report.downloadJson")}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleDownloadPdf}
+            className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+          >
+            {t("report.downloadPdf")}
+          </button>
+          <button
+            type="button"
+            onClick={handleDownloadJson}
+            className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+          >
+            {t("report.downloadJson")}
+          </button>
+        </div>
+      </div>
+      <div className="hidden print:block text-sm text-slate-500 print:mb-4">
+        {report.fileName}
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-8 dark:border-slate-700 dark:bg-slate-800/50">

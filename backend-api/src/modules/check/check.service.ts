@@ -108,6 +108,7 @@ export class CheckService {
             rawText: extractedText.slice(0, 100000),
             segmentResults: detection.segments,
             bibliographyScan: bibliographyScan != null ? (bibliographyScan as Prisma.InputJsonValue) : undefined,
+            creditsUsed: reservation.amount,
           },
         });
       });
@@ -129,14 +130,18 @@ export class CheckService {
         remainingQuota,
       };
     } catch (error) {
-      // 记录详细错误日志，便于线上排查
-      // eslint-disable-next-line no-console
-      console.error("CheckService.runCheck error", {
-        userId,
-        fileName: file?.originalname,
-        message: (error as any)?.message,
-        stack: (error as any)?.stack,
-      });
+      const err = error as { statusCode?: number; message?: string; response?: { code?: string } };
+      const isQuotaExhausted = err?.statusCode === 402 || err?.response?.code === "QUOTA_EXHAUSTED";
+      if (!isQuotaExhausted) {
+        // 仅对非“积分不足”的异常打错误日志
+        // eslint-disable-next-line no-console
+        console.error("CheckService.runCheck error", {
+          userId,
+          fileName: file?.originalname,
+          message: err?.message,
+          stack: (error as any)?.stack,
+        });
+      }
 
       // 如果在预扣之后出错，回滚预扣
       if ((error as any)?.message !== "Document content too short for analysis") {
@@ -187,7 +192,10 @@ export class CheckService {
       const availableQuota = user.checkQuota - reservedAmount;
 
       if (availableQuota < amount) {
-        throw new HttpException("No quota remaining", HttpStatus.PAYMENT_REQUIRED);
+        throw new HttpException(
+          { code: "QUOTA_EXHAUSTED", message: "No quota remaining" },
+          HttpStatus.PAYMENT_REQUIRED,
+        );
       }
 
       try {
