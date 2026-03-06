@@ -174,3 +174,4 @@ export default function AccountPage() {
       </section>
     </div>
   );
+}
