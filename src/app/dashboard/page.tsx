@@ -20,6 +20,7 @@ export default function DashboardPage() {
     overallScore: number;
     segments: Array<{ text: string; aiProbability: number; riskLevel: string; explanation: string }>;
     bibliographyScan?: Record<string, unknown> | null;
+    createdAt?: string;
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [paymentSuccessNotice, setPaymentSuccessNotice] = useState(false);
@@ -81,6 +82,7 @@ export default function DashboardPage() {
       overallScore: r.overallScore,
       segments: r.segments as Array<{ text: string; aiProbability: number; riskLevel: string; explanation: string }>,
       bibliographyScan: r.bibliographyScan ?? null,
+      createdAt: new Date().toISOString(),
     });
     if (user) setUser({ ...user, checkQuota: data.remainingQuota });
     setReports((prev) => [
@@ -99,10 +101,12 @@ export default function DashboardPage() {
         overallScore: number;
         segments: Array<{ text: string; aiProbability: number; riskLevel: string; explanation: string }>;
         bibliographyScan?: Record<string, unknown> | null;
+        createdAt?: string;
       };
       setCurrentReport({
         ...r,
         bibliographyScan: r.bibliographyScan ?? null,
+        createdAt: r.createdAt ?? new Date().toISOString(),
       });
     }
   };
@@ -137,7 +141,7 @@ export default function DashboardPage() {
             {t("dashboard.remaining")}{" "}
             <strong className="text-primary-600">{user.checkQuota}</strong>
           </span>
-          {user.checkQuota < 3 && (
+          {user.checkQuota < 10 && (
             <Link
               href="/pricing"
               className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"

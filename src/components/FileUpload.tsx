@@ -53,6 +53,8 @@ export function FileUpload({ onSuccess, onError }: Props) {
           onError(t("upload.noQuota"));
         } else if (msg.includes("already queued") || msg.includes("similar document check")) {
           onError(t("upload.duplicateTask"));
+        } else if (msg.includes("timeout") || msg.includes("exceeded")) {
+          onError(t("upload.timeout"));
         } else {
           onError(msg || t("upload.checkFailed"));
         }

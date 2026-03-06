@@ -48,7 +48,21 @@ export default function HumanReviewPage() {
 
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(text || "提交失败");
+        let msg = "";
+        try {
+          const data = text ? JSON.parse(text) : {};
+          msg = data?.message ?? data?.error ?? text ?? "";
+        } catch {
+          msg = text || "";
+        }
+        if (msg.includes("similar human review") || msg.includes("already queued")) {
+          setState({ status: "error", message: t("humanReview.duplicateRequest") });
+        } else if (msg.includes("timeout") || msg.includes("exceeded")) {
+          setState({ status: "error", message: t("humanReview.timeout") });
+        } else {
+          setState({ status: "error", message: msg || t("humanReview.submitFailed") });
+        }
+        return;
       }
 
       const data = await res.json();
@@ -59,10 +73,12 @@ export default function HumanReviewPage() {
         remainingQuota: data.remainingQuota,
       });
     } catch (err) {
-      setState({
-        status: "error",
-        message: err instanceof Error ? err.message : "提交失败",
-      });
+      const msg = err instanceof Error ? err.message : "";
+      if (msg.includes("timeout") || msg.includes("exceeded")) {
+        setState({ status: "error", message: t("humanReview.timeout") });
+      } else {
+        setState({ status: "error", message: msg || t("humanReview.submitFailed") });
+      }
     }
   };
 

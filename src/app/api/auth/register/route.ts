@@ -32,7 +32,7 @@ export async function POST(req: Request) {
         passwordHash,
         name: data.name,
         role: data.role,
-        checkQuota: 3,
+        checkQuota: 30,
       },
     });
 

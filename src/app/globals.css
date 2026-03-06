@@ -25,6 +25,57 @@ body {
   }
 }
 
+/* Report page header: top-right on screen, repeated on each printed page */
+.report-page-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.5rem 0 1rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgb(226 232 240);
+}
+@media print {
+  .report-page-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 8pt 12pt;
+    margin: 0;
+    border-bottom: 1pt solid #ccc;
+    background: #fff;
+    z-index: 9999;
+  }
+  .report-print-wrapper {
+    padding-top: 36pt;
+  }
+}
+
+/* Report page footer */
+.report-page-footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgb(226 232 240);
+  text-align: center;
+}
+@media print {
+  .report-page-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 8pt 12pt;
+    margin: 0;
+    border-top: 1pt solid #ccc;
+    background: #fff;
+    z-index: 9999;
+  }
+  .report-print-wrapper {
+    padding-bottom: 28pt;
+  }
+}
+
 @media print {
   header,
   .print\:hidden {
