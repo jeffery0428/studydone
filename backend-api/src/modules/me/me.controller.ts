@@ -17,3 +17,4 @@ export class MeController {
   creditHistory(@CurrentUser() user: CurrentUserPayload) {
     return this.meService.getCreditHistory(user.userId);
   }
+}
