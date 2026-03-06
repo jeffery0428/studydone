@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useI18n } from "@/i18n/LanguageProvider";
 
 export default function HomePage() {
@@ -12,9 +11,6 @@ export default function HomePage() {
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-accent-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(34,197,94,0.15),transparent_50%)]" />
         <div className="relative mx-auto max-w-6xl px-4 py-24 text-center">
-          <div className="mb-8 flex justify-center">
-            <Image src="/logo.png" alt="StudyDone" width={120} height={120} className="rounded-2xl object-contain shadow-md" priority />
-          </div>
           <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-5xl md:text-6xl">
             {t("home.heroTitleMain")}
             <span className="block text-primary-600">{t("home.heroTitleSub")}</span>

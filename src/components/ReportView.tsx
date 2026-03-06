@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useI18n } from "@/i18n/LanguageProvider";
 import {
   Document,
@@ -226,10 +225,9 @@ export function ReportView({ report, onBack }: Props) {
 
   return (
     <div className="report-print-wrapper">
-      {/* Page header: logo + brand + detection time; in print repeats on each page */}
+      {/* Page header: brand + detection time; in print repeats on each page */}
       <div className="report-page-header">
         <div className="flex items-center gap-3">
-          <Image src="/logo.png" alt="StudyDone" width={40} height={40} className="rounded object-contain print:h-10 print:w-10" />
           <span className="text-xs text-slate-500 dark:text-slate-400">
             {REPORT_LABELS.brandLine}
           </span>

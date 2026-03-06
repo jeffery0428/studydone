@@ -25,7 +25,7 @@ body {
   }
 }
 
-/* Report page header: logo+brand left, time right; in print repeats on each page */
+/* Report page header: brand left, time right; in print repeats on each page */
 .report-page-header {
   display: flex;
   justify-content: space-between;
