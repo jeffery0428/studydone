@@ -25,10 +25,10 @@ body {
   }
 }
 
-/* Report page header: top-right on screen, repeated on each printed page */
+/* Report page header: logo+brand left, time right; in print repeats on each page */
 .report-page-header {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   gap: 1.5rem;
   padding: 0.5rem 0 1rem;
@@ -76,6 +76,11 @@ body {
   }
 }
 
+/* Report content: support CJK to avoid garbled Chinese */
+.report-print-container {
+  font-family: "PingFang SC", "Microsoft YaHei", "SimSun", "Hiragino Sans GB", sans-serif;
+}
+
 @media print {
   header,
   .print\:hidden {
@@ -83,5 +88,6 @@ body {
   }
   .report-print-container {
     max-width: none;
+    font-family: "PingFang SC", "Microsoft YaHei", "SimSun", "Hiragino Sans GB", sans-serif;
   }
 }

@@ -109,6 +109,8 @@ export class CheckService {
             segmentResults: detection.segments,
             bibliographyScan: bibliographyScan != null ? (bibliographyScan as Prisma.InputJsonValue) : undefined,
             creditsUsed: reservation.amount,
+            aiDetection: options.aiDetection,
+            plagiarismDetection: options.plagiarismDetection,
           },
         });
       });

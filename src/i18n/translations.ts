@@ -1,8 +1,14 @@
+/**
+ * i18n: Default and fallback language is English.
+ * Extend with more locales by adding to Locale, SUPPORTED_LOCALES, and messages.
+ * Missing locale falls back to messages.en.
+ */
 export type Locale = "zh" | "en" | "ja";
 
+/** English first (default); then other languages. */
 export const SUPPORTED_LOCALES: { code: Locale; label: string }[] = [
+  { code: "en", label: "English" },
   { code: "zh", label: "中文" },
-  { code: "en", label: "EN" },
   { code: "ja", label: "日本語" },
 ];
 
@@ -157,6 +163,11 @@ const base = {
     historyFileName: "",
     historyDate: "",
     historyType: "",
+    historyCheckType: "",
+    checkTypeAi: "",
+    checkTypePlagiarism: "",
+    checkTypeBoth: "",
+    checkTypeHumanReview: "",
     needLogin: "",
     noOrders: "",
     noHistory: "",
@@ -318,6 +329,11 @@ export const messages: Record<Locale, typeof base> = {
       historyFileName: "文件名",
       historyDate: "时间",
       historyType: "类型",
+      historyCheckType: "检测类型",
+      checkTypeAi: "AI 检测",
+      checkTypePlagiarism: "抄袭检测",
+      checkTypeBoth: "AI + 抄袭",
+      checkTypeHumanReview: "人工复查",
       needLogin: "请先登录",
       goLogin: "去登录",
       noOrders: "暂无订单",
@@ -483,6 +499,11 @@ export const messages: Record<Locale, typeof base> = {
       historyFileName: "File",
       historyDate: "Date",
       historyType: "Type",
+      historyCheckType: "Check type",
+      checkTypeAi: "AI detection",
+      checkTypePlagiarism: "Plagiarism",
+      checkTypeBoth: "AI + Plagiarism",
+      checkTypeHumanReview: "Human review",
       needLogin: "Please log in first.",
       goLogin: "Log in",
       noOrders: "No orders yet.",
@@ -647,6 +668,11 @@ export const messages: Record<Locale, typeof base> = {
       historyFileName: "ファイル",
       historyDate: "日時",
       historyType: "種別",
+      historyCheckType: "検出タイプ",
+      checkTypeAi: "AI検出",
+      checkTypePlagiarism: "盗用検出",
+      checkTypeBoth: "AI + 盗用",
+      checkTypeHumanReview: "人による再チェック",
       needLogin: "ログインしてください。",
       goLogin: "ログイン",
       noOrders: "注文はまだありません。",
@@ -657,7 +683,8 @@ export const messages: Record<Locale, typeof base> = {
 
 export type Messages = typeof base;
 
+/** Default and fallback language is English; other locales extend from it. */
 export function getMessages(locale: Locale): Messages {
-  return messages[locale] ?? messages.zh;
+  return messages[locale] ?? messages.en;
 }
 

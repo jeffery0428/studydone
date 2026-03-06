@@ -38,13 +38,18 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       const stored = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
       if (stored && (SUPPORTED_LOCALES as { code: Locale }[]).some((l) => l.code === stored)) {
         setLocaleState(stored as Locale);
-        return;
       }
-      // 默认使用英文，不再根据浏览器语言自动切换
     } catch {
       // ignore
     }
   }, []);
+
+  // Sync <html lang> with current locale (default English)
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const lang = locale === "zh" ? "zh-CN" : locale === "ja" ? "ja" : "en";
+    document.documentElement.lang = lang;
+  }, [locale]);
 
   const setLocale = (value: Locale) => {
     setLocaleState(value);

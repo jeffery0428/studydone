@@ -10,12 +10,13 @@ type User = { id: string; email: string; name: string | null; role: string; chec
 type Order = { id: string; plan: string; credits: number; stripeSessionId: string | null; createdAt: string };
 type CreditEntry = {
   id: string;
-  type: "purchase" | "check";
+  type: "purchase" | "check" | "human_review";
   amount: number;
   charCount?: number;
   creditsUsed?: number;
   fileName?: string;
   plan?: string;
+  checkType?: string; // "ai_only" | "plagiarism_only" | "both" | "human_review"
   createdAt: string;
 };
 
@@ -66,6 +67,20 @@ export default function AccountPage() {
 
   const dateStr = (s: string) =>
     new Date(s).toLocaleString(locale === "ja" ? "ja-JP" : locale === "en" ? "en-US" : "zh-CN");
+
+  const checkTypeLabel = (e: CreditEntry) => {
+    if (e.type !== "check") return "—";
+    if (e.checkType === "ai_only") return t("account.checkTypeAi");
+    if (e.checkType === "plagiarism_only") return t("account.checkTypePlagiarism");
+    if (e.checkType === "both") return t("account.checkTypeBoth");
+    return "—";
+  };
+
+  const historyTypeLabel = (e: CreditEntry) => {
+    if (e.type === "purchase") return t("account.historyPurchase");
+    if (e.type === "human_review") return t("account.checkTypeHumanReview");
+    return t("account.historyCheck");
+  };
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
@@ -139,6 +154,7 @@ export default function AccountPage() {
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-600">
                   <th className="pb-2 font-medium text-slate-600 dark:text-slate-300">{t("account.historyType")}</th>
+                  <th className="pb-2 font-medium text-slate-600 dark:text-slate-300">{t("account.historyCheckType")}</th>
                   <th className="pb-2 font-medium text-slate-600 dark:text-slate-300">{t("account.historyChars")}</th>
                   <th className="pb-2 font-medium text-slate-600 dark:text-slate-300">{t("account.historyCredits")}</th>
                   <th className="pb-2 font-medium text-slate-600 dark:text-slate-300">{t("account.historyFileName")}</th>
@@ -150,19 +166,20 @@ export default function AccountPage() {
                   <tr key={e.id} className="border-b border-slate-100 dark:border-slate-700">
                     <td className="py-3">
                       {e.type === "purchase" ? (
-                        <span className="text-green-600 dark:text-green-400">{t("account.historyPurchase")}</span>
+                        <span className="text-green-600 dark:text-green-400">{historyTypeLabel(e)}</span>
                       ) : (
-                        <span className="text-slate-700 dark:text-slate-300">{t("account.historyCheck")}</span>
+                        <span className="text-slate-700 dark:text-slate-300">{historyTypeLabel(e)}</span>
                       )}
                     </td>
+                    <td className="py-3 text-slate-600 dark:text-slate-400">{checkTypeLabel(e)}</td>
                     <td className="py-3 text-slate-700 dark:text-slate-300">
-                      {e.type === "check" && e.charCount != null ? e.charCount.toLocaleString() : "—"}
+                      {(e.type === "check" || e.type === "human_review") && e.charCount != null ? e.charCount.toLocaleString() : "—"}
                     </td>
                     <td className={`py-3 font-medium ${e.amount >= 0 ? "text-green-600 dark:text-green-400" : "text-slate-900 dark:text-white"}`}>
                       {e.amount >= 0 ? `+${e.amount}` : e.amount}
                     </td>
                     <td className="py-3 text-slate-600 dark:text-slate-400 max-w-[180px] truncate" title={e.fileName ?? ""}>
-                      {e.type === "check" ? (e.fileName ?? "—") : "—"}
+                      {e.type !== "purchase" ? (e.fileName ?? "—") : "—"}
                     </td>
                     <td className="py-3 text-slate-600 dark:text-slate-400">{dateStr(e.createdAt)}</td>
                   </tr>

@@ -29,7 +29,7 @@ export class MeService {
   }
 
   async getCreditHistory(userId: string) {
-    const [orders, reports] = await Promise.all([
+    const [orders, reports, humanReviews] = await Promise.all([
       this.prisma.subscription.findMany({
         where: { userId },
         orderBy: { createdAt: "desc" },
@@ -43,19 +43,27 @@ export class MeService {
           fileName: true,
           creditsUsed: true,
           rawText: true,
+          aiDetection: true,
+          plagiarismDetection: true,
           createdAt: true,
         },
+      }),
+      this.prisma.humanReviewRequest.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        select: { id: true, fileName: true, charCount: true, creditsUsed: true, createdAt: true },
       }),
     ]);
 
     const entries: Array<{
       id: string;
-      type: "purchase" | "check";
+      type: "purchase" | "check" | "human_review";
       amount: number;
       charCount?: number;
       creditsUsed?: number;
       fileName?: string;
       plan?: string;
+      checkType?: string; // "ai_only" | "plagiarism_only" | "both" | "human_review"
       createdAt: string;
     }> = [];
 
@@ -70,6 +78,9 @@ export class MeService {
     }
     for (const r of reports) {
       const charCount = r.rawText?.length ?? 0;
+      const ai = r.aiDetection ?? true;
+      const plag = r.plagiarismDetection ?? true;
+      const checkType = ai && plag ? "both" : ai ? "ai_only" : "plagiarism_only";
       entries.push({
         id: r.id,
         type: "check",
@@ -77,7 +88,20 @@ export class MeService {
         charCount,
         creditsUsed: r.creditsUsed ?? 0,
         fileName: r.fileName,
+        checkType,
         createdAt: r.createdAt.toISOString(),
+      });
+    }
+    for (const h of humanReviews) {
+      entries.push({
+        id: h.id,
+        type: "human_review",
+        amount: -h.creditsUsed,
+        charCount: h.charCount,
+        creditsUsed: h.creditsUsed,
+        fileName: h.fileName,
+        checkType: "human_review",
+        createdAt: h.createdAt.toISOString(),
       });
     }
 

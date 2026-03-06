@@ -35,6 +35,8 @@ model Report {
   bibliographyScan Json?    // GPTZero /v2/bibliography-scan/text 返回结果
   detectorVendor   String   @default("gptzero")
   creditsUsed      Int      @default(0)  // 本次检测消耗积分
+  aiDetection      Boolean  @default(true)   // 是否勾选 AI 检测
+  plagiarismDetection Boolean @default(true) // 是否勾选抄袭检测
   createdAt        DateTime @default(now())
 }
 

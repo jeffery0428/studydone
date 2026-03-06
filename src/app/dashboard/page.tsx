@@ -136,20 +136,22 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
           {t("dashboard.title")}
         </h1>
-        <div className="flex items-center gap-4">
-          <span className="text-slate-600 dark:text-slate-400">
-            {t("dashboard.remaining")}{" "}
-            <strong className="text-primary-600">{user.checkQuota}</strong>
-          </span>
-          {user.checkQuota < 10 && (
-            <Link
-              href="/pricing"
-              className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
-            >
-              {t("dashboard.buyMore")}
-            </Link>
-          )}
-        </div>
+        {!currentReport && (
+          <div className="flex items-center gap-4">
+            <span className="text-slate-600 dark:text-slate-400">
+              {t("dashboard.remaining")}{" "}
+              <strong className="text-primary-600">{user.checkQuota}</strong>
+            </span>
+            {user.checkQuota < 10 && (
+              <Link
+                href="/pricing"
+                className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
+              >
+                {t("dashboard.buyMore")}
+              </Link>
+            )}
+          </div>
+        )}
       </div>
 
       {paymentSuccessNotice && (
