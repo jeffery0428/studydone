@@ -387,6 +387,7 @@ export const messages: Record<Locale, typeof base> = {
       headline: "Drop your file here or click to upload",
       subline: "Supports .docx, .pdf, .txt, up to 10 MB",
       duplicateTask: "This document is already queued or was recently checked. Please check your history.",
+      noQuota: "Insufficient credits. Please purchase a plan on the Pricing page and try again.",
       checkOptions: "Check options (select at least one)",
       aiDetection: "AI detection",
       plagiarismDetection: "Plagiarism detection",
