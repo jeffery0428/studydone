@@ -79,6 +79,14 @@ export function Header() {
           >
             {t("nav.aiClean")}
           </Link>
+          <a
+            href="https://t.me/+nLcrms3lOhg1MWM1"
+            target="_blank"
+            rel="noreferrer"
+            className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+          >
+            {t("nav.support")}
+          </a>
           {user && (
             <Link
               href="/account"

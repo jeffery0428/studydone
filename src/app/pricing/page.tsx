@@ -93,9 +93,6 @@ export default function PricingPage() {
       </div>
 
       <div className="mx-auto mt-6 max-w-3xl space-y-3">
-        <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-          {t("pricing.testOnlyBaseNotice")}
-        </div>
         {paymentCanceled && (
           <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
             {t("pricing.paymentCanceled")}
