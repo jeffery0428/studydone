@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useI18n } from "@/i18n/LanguageProvider";
 
 export default function HomePage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   return (
     <div className="min-h-[calc(100vh-4rem)]">
@@ -96,6 +96,80 @@ export default function HomePage() {
           >
             {t("home.academicCta")}
           </Link>
+        </div>
+      </section>
+
+      <section className="border-t border-slate-200 bg-white py-16 dark:border-slate-800 dark:bg-slate-900">
+        <div className="mx-auto max-w-6xl px-4">
+          <h2 className="text-center text-2xl font-bold text-slate-900 dark:text-white">
+            {locale === "zh"
+              ? "AI 检测与查重相关页面入口"
+              : locale === "ja"
+                ? "AI検出・チェック関連ページ"
+                : "AI detection & plagiarism checker landing pages"}
+          </h2>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <Link
+              href="/ai-detector"
+              className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm font-medium text-slate-800 transition hover:border-primary-500 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-100 dark:hover:border-primary-500"
+            >
+              {locale === "zh"
+                ? "AI 论文检测 / 论文 AI 率检测"
+                : locale === "ja"
+                  ? "論文向け AI 検出ツール"
+                  : "AI detection checker for essays"}
+            </Link>
+            <Link
+              href="/plagiarism-checker"
+              className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm font-medium text-slate-800 transition hover:border-primary-500 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-100 dark:hover:border-primary-500"
+            >
+              {locale === "zh"
+                ? "学术写作 AI 查重工具"
+                : locale === "ja"
+                  ? "学術向け AI 盗用チェッカー"
+                  : "AI plagiarism checker for academic writing"}
+            </Link>
+            <Link
+              href="/turnitin-alternative"
+              className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm font-medium text-slate-800 transition hover:border-primary-500 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-100 dark:hover:border-primary-500"
+            >
+              {locale === "zh"
+                ? "聚焦 AI 检测的 Turnitin 替代"
+                : locale === "ja"
+                  ? "AI検出に特化した Turnitin 代替"
+                  : "Turnitin alternative focused on AI"}
+            </Link>
+            <Link
+              href="/chatgpt-detection"
+              className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm font-medium text-slate-800 transition hover:border-primary-500 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-100 dark:hover:border-primary-500"
+            >
+              {locale === "zh"
+                ? "检测论文中的 ChatGPT 痕迹"
+                : locale === "ja"
+                  ? "論文内の ChatGPT らしさを検出"
+                  : "Detect ChatGPT writing in papers"}
+            </Link>
+            <Link
+              href="/for-professors"
+              className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm font-medium text-slate-800 transition hover:border-primary-500 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-100 dark:hover:border-primary-500"
+            >
+              {locale === "zh"
+                ? "面向教师的 AI 检测工作流"
+                : locale === "ja"
+                  ? "教員向け AI 検出ワークフロー"
+                  : "AI detection workflow for professors"}
+            </Link>
+            <Link
+              href="/for-students"
+              className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm font-medium text-slate-800 transition hover:border-primary-500 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-100 dark:hover:border-primary-500"
+            >
+              {locale === "zh"
+                ? "面向学生的 AI 检测与查重"
+                : locale === "ja"
+                  ? "学生向け AI検出 & チェッカー"
+                  : "AI detection & plagiarism checker for students"}
+            </Link>
+          </div>
         </div>
       </section>
     </div>
